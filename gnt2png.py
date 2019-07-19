@@ -54,7 +54,7 @@ test_counter = 0
 for image, tagcode in read_from_gnt_dir(gnt_dir=train_data_dir): 
     tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
     im = Image.fromarray(image)
-# 路径为data文件夹下的子文件夹，train为存放训练集.png的文件夹  
+# 路径为data文件夹下的子文件夹，train为存放训练集.png的文件夹
     dir_name = '../data/train/' + '%0.5d' % char_dict[tagcode_unicode]
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
