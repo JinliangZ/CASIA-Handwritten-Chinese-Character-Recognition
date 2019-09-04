@@ -13,7 +13,7 @@ log = Logger.get_logger("Model_1","./log/Model_1.log")
 weight_path = './weight/Model_1/Model_1.ckpt'
 
 # tf Graph input
-X = tf.placeholder("float", [None, 64, 64])
+X = tf.placeholder("float", [None, 64*64])
 Y = tf.placeholder("float", [None, 150])
 
 #use convolutional neural network to extract features
@@ -82,9 +82,9 @@ with tf.Session() as sess:
             
     
     # TensorBoard
-    tf.scalar_summary("loss", loss_softmax)
-    tf.scalar_summary("accuracy", test_sample_average_accuracy) 
-    merged_summary_op = tf.merge_all_summaries()
+    tf.summary.scalar("loss", loss_softmax)
+    tf.summary.scalar("accuracy", test_sample_average_accuracy) 
+    merged_summary_op = tf.summaries.merge_all()
     writer = tf.summary.FileWriter("./graph",sess.graph)
         
         
