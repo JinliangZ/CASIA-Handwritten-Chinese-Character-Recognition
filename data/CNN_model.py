@@ -6,11 +6,11 @@ import DataManager as dm
 #卷积层负责提取图像中的局部特征；
 #池化层用来大幅降低参数量级(降维),同时改善结果（不易出现过拟合）；
 #全连接层类似传统神经网络的部分，用来输出想要的结果。
-#X = tf.placeholder("float", [None, 64, 64])
-#Y = tf.placeholder("float", [None, 150])
+X = tf.compat.v1.placeholder("float", [None, 64* 64])
+Y = tf.compat.v1.placeholder("float", [None, 150])
 
 def CNN(X,Y):
-    input_layer = (X,[-1,64,64,1])
+    input_layer = tf.reshape(X, shape=[-1, 64, 64, 1])
     # Input Tensor Shape: [batch_size, 64, 64, 1]
     # Output Tensor Shape: [batch_size, 64, 64, 32]
     with tf.name_scope("conv1"):
