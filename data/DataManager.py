@@ -6,7 +6,7 @@ from sklearn.utils import shuffle
 import tensorflow as tf
 #import gnt2png as gn
 import struct
-#import random
+
 
 data_dir = '../data'
 train_data_dir = os.path.join(data_dir, 'HWDB1.1trn_gnt')
@@ -96,7 +96,7 @@ num = len(test_data_x)
 #Y = tf.placeholder(tf.float32, [None, 150])
 #keep_prob = tf.placeholder(tf.float32)
 
-MODE = tf.estimator.ModeKeys.TRAIN
-#MODE == tf.estimator.ModeKeys.EVAL
+#MODE = tf.estimator.ModeKeys.TRAIN
+MODE = tf.estimator.ModeKeys.EVAL
  
 

@@ -13,8 +13,8 @@ log = Logger.get_logger("Model_1","./log/Model_1.log")
 weight_path = './weight/Model_1/Model_1.ckpt'
 
 # tf Graph input
-X = tf.placeholder("float", [None, 64*64])
-Y = tf.placeholder("float", [None, 150])
+X = tf.compat.v1.placeholder("float", [None, 64*64])
+Y = tf.compat.v1.placeholder("float", [None, 150])
 
 #use convolutional neural network to extract features
 feature_layer = CNN_model.CNN(X, Y)
@@ -24,15 +24,21 @@ classification_layer = CNN_model.full_connected_layer(feature_layer)
 
 # loss_softmax is the only loss function used in model 1
 loss_softmax = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits = classification_layer, labels = Y ))
-optimizer = tf.train.AdamOptimizer(learning_rate=0.001, epsilon=1)
+optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.001, epsilon=1)
 train_op = optimizer.minimize(loss_softmax)
 
+# TensorBoard
+tf.compat.v1.summary.scalar("loss", loss_softmax)
+merged_summary_op = tf.compat.v1.summary.merge_all()
+
 # Initializing the variables
-init = tf.global_variables_initializer()
-with tf.Session() as sess:
+init = tf.compat.v1.global_variables_initializer()
+with tf.compat.v1.Session() as sess:
     sess.run(init)
+     
+    summary_writer = tf.compat.v1.summary.FileWriter("./graph",sess.graph)
     
-    saver = tf.train.Saver()  
+    saver =  tf.compat.v1.train.Saver()  
     try:
         saver.restore(sess, weight_path) 
     except:
@@ -46,10 +52,12 @@ with tf.Session() as sess:
                 for i in range(dm.num_batch):
                     batch_x = dm.train_data_x[i*dm.batch_size : (i+1)*dm.batch_size ]
                     batch_y = dm.train_data_y[i*dm.batch_size : (i+1)*dm.batch_size ]
-                    _, cost = sess.run([train_op, loss_softmax], feed_dict={X:batch_x, Y:batch_y})
+                    _, cost, result = sess.run([train_op, loss_softmax, merged_summary_op], feed_dict={X:batch_x, Y:batch_y})
                     if np.mod(i, 100) == 0:
                         save_path = saver.save(sess, weight_path)
                         log.info('save weight')
+                        summary_writer.add_summary(result,i) #将日志数据写入文件
+                       
                     
                     
                     
@@ -57,8 +65,8 @@ with tf.Session() as sess:
     if (dm.MODE == tf.estimator.ModeKeys.EVAL):
             log.info("start evaluate model...")
             test_sample_total_accuracy = 0
-            for epoch in range(100):
-                i = random.randint(dm.num,dm.num-500)
+            for epoch in range(200):
+                i = random.randint(dm.num-500,dm.num)
                 batch_x = dm.test_data_x[i : i+500]
                 batch_y = dm.test_data_y[i : i+500]
     
@@ -81,11 +89,7 @@ with tf.Session() as sess:
             log.info("average model accuracy of this test dataset: %f" % test_sample_average_accuracy)    
             
     
-    # TensorBoard
-    tf.summary.scalar("loss", loss_softmax)
-    tf.summary.scalar("accuracy", test_sample_average_accuracy) 
-    merged_summary_op = tf.summaries.merge_all()
-    writer = tf.summary.FileWriter("./graph",sess.graph)
+    
         
         
         
