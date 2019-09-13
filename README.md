@@ -12,7 +12,6 @@ Train dataset download url: http://www.nlpr.ia.ac.cn/databases/Download/feature_
 Test dataset download url: http://www.nlpr.ia.ac.cn/databases/Download/feature_data/1.0test-gb1.rar
 
 3 steps to implement classify a subset of CASIA database:
-
 1. convert .gnt to .png which contains gray-scale value of pixes; then, store the values in arrays.
 
 2.design CNN: 5 convolutional layers, 5 pooling layers, 1 fully connected layer.
