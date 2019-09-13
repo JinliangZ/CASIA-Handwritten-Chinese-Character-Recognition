@@ -2,9 +2,9 @@ import os
 import numpy as np
 import struct
 from PIL import Image
-# data saves .png files after being converted .
+# data文件夹存放转换后的.png文件
 data_dir = '../data'
-# dir is where .gnt is saved after uncompressed.
+# 路径为存放数据集解压后的.gnt文件
 train_data_dir = os.path.join(data_dir, 'HWDB1.1trn_gnt')
 test_data_dir = os.path.join(data_dir, 'HWDB1.1tst_gnt')
 
@@ -21,8 +21,9 @@ def read_from_gnt_dir(gnt_dir=train_data_dir):
             height = header[8] + (header[9] << 8)
             if header_size + width * height != sample_size:
                 break
-            image = np.fromfile(f, dtype='uint8', count=width * height).reshape((height, width))
-            yield image, tagcode
+            #global image
+            image = np.fromfile(f, dtype='uint8', count=width * height).reshape((height, width)) #将file以二进制一位数组读取到image里面
+            yield image, tagcode  #tagcode是汉字的16进制码
 
     for file_name in os.listdir(gnt_dir):
         if file_name.endswith('.gnt'):
@@ -34,32 +35,33 @@ def read_from_gnt_dir(gnt_dir=train_data_dir):
 
 char_set = set()
 for _, tagcode in read_from_gnt_dir(gnt_dir=train_data_dir):
-    tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
-    char_set.add(tagcode_unicode)
+    tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')  #tagcode_unicode是汉字(decode后是汉字，encode后是16进制)
+    char_set.add(tagcode_unicode) #所有汉字的集合
 for _, tagcode in read_from_gnt_dir(gnt_dir=test_data_dir):
     tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
     char_set.add(tagcode_unicode)
 char_list = list(char_set)
 char_dict = dict(zip(sorted(char_list), range(len(char_list))))
-print(len(char_dict))
-print("char_dict=", char_dict)
+#print(len(char_dict))
+#print("char_dict=", char_dict)
 
 import pickle
 
-f = open('char_dict', 'wb')
-pickle.dump(char_dict, f)
-f.close()
+with open('char_dict', 'wb') as f:
+ pickle.dump(char_dict, f)
+
 train_counter = 0
 test_counter = 0
+
 for image, tagcode in read_from_gnt_dir(gnt_dir=train_data_dir): 
     tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
     im = Image.fromarray(image)
-# 路径为data文件夹下的子文件夹，train为存放训练集.png的文件夹
+# 路径为data文件夹下的子文件夹，train为存放训练集.png的文件夹  
     dir_name = '../data/train/' + '%0.5d' % char_dict[tagcode_unicode]
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     im.convert('RGB').save(dir_name + '/' + str(train_counter) + '.png')
-    print("train_counter=", train_counter)
+    #print("train_counter=", train_counter)
     train_counter += 1
 for image, tagcode in read_from_gnt_dir(gnt_dir=test_data_dir):
     tagcode_unicode = struct.pack('>H', tagcode).decode('gb2312')
@@ -69,5 +71,7 @@ for image, tagcode in read_from_gnt_dir(gnt_dir=test_data_dir):
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     im.convert('RGB').save(dir_name + '/' + str(test_counter) + '.png')
-    print("test_counter=", test_counter)
+    #print("test_counter=", test_counter)
     test_counter += 1
+# 样本数
+#print(train_counter, test_counter)
