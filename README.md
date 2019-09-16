@@ -13,7 +13,7 @@ Test dataset download url: http://www.nlpr.ia.ac.cn/databases/Download/feature_d
 
 3 steps to implement classify a subset of CASIA database:
 
-1. convert .gnt to .png which contains gray-scale value of pixes; then, store the values in arrays.
+1.convert .gnt to .png which contains gray-scale value of pixes; then, store the values in arrays, get 150 most popular Chinese characters as a subet.
 
 2.design CNN: 5 convolutional layers, 5 pooling layers, 1 fully connected layer.
 
